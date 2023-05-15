@@ -4,7 +4,7 @@
 ## Deploy 
 
 ```shell
-kubectl apply -f https://
+kubectl apply -f https://raw.githubusercontent.com/chulinx/netAgent/main/deploy/netagent.yaml
 kubectl expose -n netagent-system deployment netagent-controller-manager --port 8585 --type NodePort
 ```
 
