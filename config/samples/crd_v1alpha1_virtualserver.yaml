@@ -1,0 +1,20 @@
+apiVersion: crd.chulinx/v1alpha1
+kind: VirtualServer
+metadata:
+  labels:
+    app.kubernetes.io/name: virtualserver
+    app.kubernetes.io/instance: virtualserver-sample
+    app.kubernetes.io/part-of: netagent
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: netagent
+  name: virtualserver-sample
+spec:
+  listenPort: 8000
+  serverName: "web.chulinx.com"
+  proxys:
+    - name: "web"
+      path: "/"
+      scheme: "http"
+      nameSpace: "default"
+      service: "webserver"
+      port: 80

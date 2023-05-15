@@ -1,0 +1,33 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  creationTimestamp: null
+  name: manager-role
+rules:
+- apiGroups:
+  - crd.chulinx
+  resources:
+  - virtualservers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - crd.chulinx
+  resources:
+  - virtualservers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - crd.chulinx
+  resources:
+  - virtualservers/status
+  verbs:
+  - get
+  - patch
+  - update

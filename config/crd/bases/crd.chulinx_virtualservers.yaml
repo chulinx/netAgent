@@ -1,0 +1,88 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.11.1
+  creationTimestamp: null
+  name: virtualservers.crd.chulinx
+spec:
+  group: crd.chulinx
+  names:
+    kind: VirtualServer
+    listKind: VirtualServerList
+    plural: virtualservers
+    singular: virtualserver
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - description: The Nginx server server_name
+      jsonPath: .spec.listenPort
+      name: ListenPort
+      type: string
+    - jsonPath: .spec.serverName
+      name: ServerName
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: VirtualServer is the Schema for the virtual-servers API
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: VirtualServerSpec defines the desired state of VirtualServer
+            properties:
+              listenPort:
+                format: int32
+                type: integer
+              proxys:
+                items:
+                  description: Location is Nginx Location
+                  properties:
+                    name:
+                      type: string
+                    nameSpace:
+                      description: NameSpace empty is current namespace
+                      type: string
+                    path:
+                      type: string
+                    port:
+                      format: int32
+                      type: integer
+                    scheme:
+                      type: string
+                    service:
+                      type: string
+                  type: object
+                type: array
+              serverName:
+                type: string
+            type: object
+          status:
+            description: VirtualServerStatus defines the observed state of VirtualServer
+            properties:
+              state:
+                description: 'INSERT ADDITIONAL STATUS FIELD - define observed state
+                  of cluster Important: Run "make" to regenerate code after modifying
+                  this file'
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}
