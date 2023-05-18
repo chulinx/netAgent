@@ -1,0 +1,16 @@
+apiVersion: crd.chulinx/v1alpha1
+kind: StreamServer
+metadata:
+  labels:
+    app.kubernetes.io/name: streamserver
+    app.kubernetes.io/instance: streamserver-sample
+    app.kubernetes.io/part-of: netagent
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/created-by: netagent
+  name: streamserver-sample
+spec:
+  listenPort: 8000
+  proxy:
+    nameSpace: default
+    service: webserver
+    port: 80
