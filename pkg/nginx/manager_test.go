@@ -41,9 +41,11 @@ var (
 	s = virtualserverv1alpha1.StreamServer{Spec: virtualserverv1alpha1.StreamServerSpec{
 		ListenPort: 80,
 		Name:       "test",
-		NameSpace:  "default",
-		Service:    "webserver",
-		Port:       80,
+		Proxy: virtualserverv1alpha1.Proxy{
+			NameSpace: "default",
+			Service:   "webserver",
+			Port:      80,
+		},
 	}}
 )
 

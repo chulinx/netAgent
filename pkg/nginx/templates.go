@@ -17,7 +17,7 @@ var (
 
 	streamServerTmpl = `server {
                 listen {{.ListenPort}};
-                proxy_pass {{ .Service }}.{{ .NameSpace}}:{{ .Port }};
+                proxy_pass {{ .Proxy.Service }}.{{ .Proxy.NameSpace}}:{{ .Proxy.Port }};
                 access_log   /var/log/nginx/tcp-access.log stream_proxy;
         }`
 )
