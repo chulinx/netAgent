@@ -80,8 +80,8 @@ func (r *StreamServerReconciler) reconcileNginxStreamServerConfig(ctx context.Co
 	// create or update virtual host config file and reload nginx
 	err = nginxManager.CreateOrUpdate()
 	log.Info("create or update stream host config", zap.Any("listPort", s.Name),
-		zap.Any("service", s.Spec.Service),
-		zap.Any("port", s.Spec.Port))
+		zap.Any("service", s.Spec.Proxy.Service),
+		zap.Any("port", s.Spec.Proxy.Port))
 	if err != nil {
 		log.Error("create or update stream host config failed", zap.Any("err", err))
 		return err
