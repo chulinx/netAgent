@@ -20,7 +20,7 @@ import (
 	"context"
 	crdv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
 	virtualserverv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
-	nginx_manager "github.com/chulinx/netAgent/pkg/nginx-manager"
+	nginx_manager "github.com/chulinx/netAgent/pkg/nginx"
 	"github.com/chulinx/zlxGo/log"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -39,7 +39,6 @@ type VirtualServerReconciler struct {
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers/finalizers,verbs=update
-//+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.

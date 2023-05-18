@@ -1,4 +1,4 @@
-package nginx_manager
+package nginx
 
 import (
 	"fmt"
@@ -29,7 +29,7 @@ var (
 			ListenPort: 8282,
 			ServerName: "web.chulinx.com",
 			Proxys: []virtualserverv1alpha1.Location{
-				virtualserverv1alpha1.Location{
+				{
 					Scheme: "https",
 					//NameSpace: "default",
 					Service: "webserver",
