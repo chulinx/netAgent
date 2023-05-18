@@ -8,6 +8,32 @@ rules:
 - apiGroups:
   - crd.chulinx
   resources:
+  - streamservers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - crd.chulinx
+  resources:
+  - streamservers/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - crd.chulinx
+  resources:
+  - streamservers/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - crd.chulinx
+  resources:
   - virtualservers
   verbs:
   - create

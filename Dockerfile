@@ -29,6 +29,7 @@ RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -o ne
 FROM nginx:alpine
 WORKDIR /
 COPY --from=builder /workspace/netagent .
+COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh .
 RUN chmod +x /entrypoint.sh
 

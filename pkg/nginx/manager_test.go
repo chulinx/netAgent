@@ -38,10 +38,17 @@ var (
 			},
 		}),
 	}
+	s = virtualserverv1alpha1.StreamServer{Spec: virtualserverv1alpha1.StreamServerSpec{
+		ListenPort: 80,
+		Name:       "test",
+		NameSpace:  "default",
+		Service:    "webserver",
+		Port:       80,
+	}}
 )
 
 func Test_generateConfig(t *testing.T) {
-	newManger := NewManager(vs)
+	newManger := NewVirtualServerManager(vs)
 	c, err := newManger.generateConfig()
 	if err != nil {
 		t.Errorf("Error,%s", err.Error())
@@ -52,4 +59,6 @@ func Test_generateConfig(t *testing.T) {
 		fmt.Println(c)
 		fmt.Println(result)
 	}
+	streamServer := NewStreamServerManager(s)
+	fmt.Println(streamServer.generateConfig())
 }

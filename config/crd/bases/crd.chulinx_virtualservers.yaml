@@ -16,11 +16,12 @@ spec:
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
-    - description: The Nginx server server_name
+    - description: The Nginx server listen_port
       jsonPath: .spec.listenPort
       name: ListenPort
       type: string
-    - jsonPath: .spec.serverName
+    - description: The Nginx server server_name
+      jsonPath: .spec.serverName
       name: ServerName
       type: string
     - jsonPath: .metadata.creationTimestamp

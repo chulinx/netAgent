@@ -33,7 +33,6 @@ import (
 type VirtualServerReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
-	//NginxManager *nginx_manager.Manager
 }
 
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers,verbs=get;list;watch;create;update;patch;delete
@@ -62,7 +61,7 @@ func (r *VirtualServerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 
 func (r *VirtualServerReconciler) reconcileNginxVirtualServerConfig(ctx context.Context, vs virtualserverv1alpha1.VirtualServer, req ctrl.Request) error {
 	err := r.Get(ctx, req.NamespacedName, &vs)
-	nginxManager := nginx_manager.NewManager(vs)
+	nginxManager := nginx_manager.NewVirtualServerManager(vs)
 	if err != nil {
 		// delete virtual host config file
 		if errors.IsNotFound(err) {
@@ -77,7 +76,7 @@ func (r *VirtualServerReconciler) reconcileNginxVirtualServerConfig(ctx context.
 		return err
 	}
 	// create or update virtual host config file and reload nginx
-	err = nginxManager.CreateOrUpdateVirtualServerManager()
+	err = nginxManager.CreateOrUpdate()
 	log.Info("create or update virtual host config", zap.Any("name", vs.Name),
 		zap.Any("server_name", vs.Spec.ServerName),
 		zap.Any("port", vs.Spec.ListenPort))

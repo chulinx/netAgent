@@ -40,8 +40,8 @@ type VirtualServerStatus struct {
 
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:printcolumn:name="ListenPort",type="string",JSONPath=".spec.listenPort",description="The Nginx server server_name"
-//+kubebuilder:printcolumn:name="ServerName",type="string",JSONPath=".spec.serverName"
+//+kubebuilder:printcolumn:name="ListenPort",type="string",JSONPath=".spec.listenPort",description="The Nginx server listen_port"
+//+kubebuilder:printcolumn:name="ServerName",type="string",JSONPath=".spec.serverName",description="The Nginx server server_name"
 //+kubebuilder:printcolumn:name="Age",type="date",JSONPath=".metadata.creationTimestamp"
 
 // VirtualServer is the Schema for the virtual-servers API

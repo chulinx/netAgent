@@ -1,27 +1,31 @@
 package nginx
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
+	virtualserverv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
 	"github.com/chulinx/zlxGo/log"
 	"github.com/chulinx/zlxGo/net"
 	"github.com/chulinx/zlxGo/stringfile"
-	"github.com/lithammer/dedent"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/types"
-	"os"
 	"path"
 	"strings"
-	"text/template"
 )
 
-var (
-	confdPath = path.Join(configPath, "conf.d")
-)
+// VirtualServerManager 管理nginx配置的生命周期
+type VirtualServerManager struct {
+	VirtualServer *virtualserverv1alpha1.VirtualServer
+}
 
-// CreateOrUpdateVirtualServerManager write conf to confdPath
-func (m *Manager) CreateOrUpdateVirtualServerManager() error {
+func NewVirtualServerManager(v virtualserverv1alpha1.VirtualServer) *VirtualServerManager {
+	return &VirtualServerManager{
+		VirtualServer: &v,
+	}
+}
+
+// CreateOrUpdate write Or Update http server conf to confdPath
+func (m *VirtualServerManager) CreateOrUpdate() error {
 	for _, location := range m.VirtualServer.Spec.Proxys {
 		domain := fmt.Sprintf("%s.%s", location.Service, location.NameSpace)
 		_, err := net.LookAddrIPFromDomain(domain)
@@ -33,50 +37,31 @@ func (m *Manager) CreateOrUpdateVirtualServerManager() error {
 	if err != nil {
 		return err
 	}
-	fileName := fmt.Sprintf("%s-%s.conf", m.VirtualServer.Name,
-		m.VirtualServer.Namespace,
-	)
-	if strings.Contains(fileName, "--0") {
+	confFile := path.Join(confdPath, fmt.Sprintf("%s-%s.conf", m.VirtualServer.Name,
+		m.VirtualServer.Namespace))
+	if strings.Contains(confFile, "--0") {
 		return errors.New("vs config error")
 	}
-	err = stringfile.RewriteFile(content, path.Join(confdPath, fileName))
+	err = stringfile.RewriteFile(content, confFile)
 	if err != nil {
 		return err
 	}
-	return m.reloadNginx()
+	return reloadNginx()
 }
 
-// RemoveVirtualServerManager write conf to confdPath
-func (m *Manager) RemoveVirtualServerManager(namespacedName types.NamespacedName) error {
-	fileName := fmt.Sprintf("%s-%s.conf", namespacedName.Name,
-		namespacedName.Namespace,
-	)
-	confFile := path.Join(confdPath, fileName)
-	if _, err := os.Stat(confFile); os.IsNotExist(err) {
-		return nil
-	}
+// RemoveVirtualServerManager remove conf to confdPath
+func (m *VirtualServerManager) RemoveVirtualServerManager(namespacedName types.NamespacedName) error {
+	confFile := path.Join(confdPath, fmt.Sprintf("%s-%s.conf", namespacedName.Name,
+		namespacedName.Namespace))
 	log.Info("remove virtual host config file", zap.Any("config file", confFile))
-	err := os.Remove(confFile)
+	err := removeConf(confFile)
 	if err != nil {
 		return err
 	}
-	return m.reloadNginx()
+	return reloadNginx()
 }
 
-func (m *Manager) reloadNginx() error {
-	if err := shellOut(fmt.Sprintf("%v -s %v -e stderr", binaryFilename, "reload")); err != nil {
-		return fmt.Errorf("nginx reload failed: %w", err)
-	}
-	return nil
-}
-
-func (m *Manager) generateConfig() (string, error) {
-	var out bytes.Buffer
+func (m *VirtualServerManager) generateConfig() (string, error) {
 	log.Info("start generate nginx config")
-	t := template.Must(template.New("text").Parse(dedent.Dedent(virtualServerTmpl)))
-	err := t.Execute(&out, m.VirtualServer.Spec)
-	if err != nil {
-		return "", err
-	}
-	return out.String(), nil
+	return renderConf(virtualServerTmpl, m.VirtualServer.Spec)
 }
