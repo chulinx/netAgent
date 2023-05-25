@@ -37,6 +37,20 @@ spec:
   serverName: webserver.chulinx.com
 ```
 
+## Create streamServer
+```yaml
+apiVersion: crd.chulinx/v1alpha1
+kind: StreamServer
+metadata:
+  name: streamserver-sample
+spec:
+  listenPort: 8585
+  proxy:
+    nameSpace: default
+    service: webserver
+    port: 80
+```
+
 ## Access webserver 
 
 ```shell
