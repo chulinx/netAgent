@@ -71,6 +71,10 @@ type Location struct {
 	NameSpace string `json:"nameSpace,omitempty"`
 	Service   string `json:"service,omitempty"`
 	Port      int32  `json:"port,omitempty"`
+	// ProxyRedirect set proxy_redirect     off;
+	ProxyRedirect    bool              `json:"proxyRedirect,omitempty"`
+	ProxyHttpVersion string            `json:"proxyHttpVersion,omitempty"`
+	ProxyHeaders     map[string]string `json:"proxyHeaders,omitempty"`
 }
 
 func init() {

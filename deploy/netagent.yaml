@@ -141,6 +141,15 @@ spec:
                     port:
                       format: int32
                       type: integer
+                    proxyHeaders:
+                      additionalProperties:
+                        type: string
+                      type: object
+                    proxyHttpVersion:
+                      type: string
+                    proxyRedirect:
+                      description: ProxyRedirect set proxy_redirect     off;
+                      type: boolean
                     scheme:
                       type: string
                     service:

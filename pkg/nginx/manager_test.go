@@ -32,8 +32,15 @@ var (
 				{
 					Scheme: "https",
 					//NameSpace: "default",
-					Service: "webserver",
-					Port:    2003,
+					Service:          "webserver",
+					Port:             2003,
+					ProxyRedirect:    false,
+					ProxyHttpVersion: "1.1",
+					ProxyHeaders: map[string]string{
+						"Host":            "$host",
+						"X-Real-IP":       "$remote_addr",
+						"X-Forwarded-For": "$proxy_add_x_forwarded_for",
+					},
 				},
 			},
 		}),
@@ -61,6 +68,6 @@ func Test_generateConfig(t *testing.T) {
 		fmt.Println(c)
 		fmt.Println(result)
 	}
-	streamServer := NewStreamServerManager(s)
-	fmt.Println(streamServer.generateConfig())
+	//streamServer := NewStreamServerManager(s)
+	//fmt.Println(streamServer.generateConfig())
 }
