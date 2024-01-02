@@ -8,7 +8,7 @@ var (
           {{ range $Proxy := .Proxys }}location / {
                 {{ if $Proxy.NameSpace }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}.{{$Proxy.NameSpace}}:{{$Proxy.Port}};{{ else }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}:{{$Proxy.Port}};{{ end }}
                 {{ if not $Proxy.ProxyRedirect }}proxy_redirect     off;{{ end }}
-				{{ if $Proxy.ProxyRedirect }}proxy_http_version {{ $Proxy.ProxyHttpVersion }};{{ end }}
+				{{ if $Proxy.ProxyHttpVersion }}proxy_http_version {{ $Proxy.ProxyHttpVersion }};{{ end }}
 				{{ range $key,$value := $Proxy.ProxyHeaders }}proxy_set_header   {{ $key }} {{ $value }};
 				{{ end }}
           }

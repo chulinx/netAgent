@@ -18,7 +18,7 @@ kubectl exec -it `kubectl get pod -l app=webserver -o=jsonpath='{.items[0].metad
 kubectl expose deployment webserver --port 80 --type ClusterIP
 ```
 
-## Create VirtualHost
+## Create VirtualHost For Http Proxy
 
 ```yaml
 apiVersion: crd.chulinx/v1alpha1
@@ -34,6 +34,37 @@ spec:
     port: 80
     scheme: http
     service: webserver
+    proxyRedirect: false
+    proxyHeaders:
+      Host: "$host"
+      X-Real-IP:       "$remote_addr"
+      X-Forwarded-For: "$proxy_add_x_forwarded_for"
+  serverName: webserver.chulinx.com
+```
+
+## Create VirtualHost For Http Websocket
+
+```yaml
+apiVersion: crd.chulinx/v1alpha1
+kind: VirtualServer
+metadata:
+  name: webserver-ws
+spec:
+  listenPort: 8585
+  proxys:
+  - name: web
+    nameSpace: default
+    path: /
+    port: 80
+    scheme: http
+    service: webserver
+    proxyHttpVersion: "1.1"
+    proxyHeaders:
+      Host: "$host"
+      X-Real-IP:       "$remote_addr"
+      X-Forwarded-For: "$proxy_add_x_forwarded_for"
+      Upgrade: "$http_upgrade"
+      Connection: "Upgrade"  
   serverName: webserver.chulinx.com
 ```
 

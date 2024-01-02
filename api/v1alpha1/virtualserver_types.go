@@ -72,6 +72,7 @@ type Location struct {
 	Service   string `json:"service,omitempty"`
 	Port      int32  `json:"port,omitempty"`
 	// ProxyRedirect set proxy_redirect     off;
+	// +kubebuilder:default=true
 	ProxyRedirect    bool              `json:"proxyRedirect,omitempty"`
 	ProxyHttpVersion string            `json:"proxyHttpVersion,omitempty"`
 	ProxyHeaders     map[string]string `json:"proxyHeaders,omitempty"`

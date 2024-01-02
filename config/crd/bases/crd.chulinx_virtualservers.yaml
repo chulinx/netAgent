@@ -71,6 +71,7 @@ spec:
                     proxyHttpVersion:
                       type: string
                     proxyRedirect:
+                      default: true
                       description: ProxyRedirect set proxy_redirect     off;
                       type: boolean
                     scheme:

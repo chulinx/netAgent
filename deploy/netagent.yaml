@@ -148,6 +148,7 @@ spec:
                     proxyHttpVersion:
                       type: string
                     proxyRedirect:
+                      default: true
                       description: ProxyRedirect set proxy_redirect     off;
                       type: boolean
                     scheme:
@@ -483,7 +484,7 @@ spec:
         - /bin/sh
         - -x
         - /entrypoint.sh
-        image: chulinx/netagent:v0.2
+        image: chulinx/netagent:v0.3
         livenessProbe:
           httpGet:
             path: /healthz
