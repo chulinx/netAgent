@@ -159,6 +159,11 @@ spec:
                 type: array
               serverName:
                 type: string
+              tls:
+                default: false
+                type: boolean
+              tlsMountPath:
+                type: string
             type: object
           status:
             description: VirtualServerStatus defines the observed state of VirtualServer
@@ -484,7 +489,7 @@ spec:
         - /bin/sh
         - -x
         - /entrypoint.sh
-        image: chulinx/netagent:v0.3
+        image: chulinx/netagent:v0.4
         livenessProbe:
           httpGet:
             path: /healthz
