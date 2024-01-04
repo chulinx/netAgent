@@ -82,6 +82,11 @@ spec:
                 type: array
               serverName:
                 type: string
+              tls:
+                default: false
+                type: boolean
+              tlsMountPath:
+                type: string
             type: object
           status:
             description: VirtualServerStatus defines the observed state of VirtualServer
