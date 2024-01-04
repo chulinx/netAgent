@@ -42,6 +42,31 @@ spec:
   serverName: webserver.chulinx.com
 ```
 
+## Create VirtualHost With TLS
+```yaml
+apiVersion: crd.chulinx/v1alpha1
+kind: VirtualServer
+metadata:
+  name: webserver
+spec:
+  listenPort: 8585
+  tls: true
+  tlsMountPath: "/opt"
+  proxys:
+  - name: web
+    nameSpace: default
+    path: /
+    port: 80
+    scheme: http
+    service: webserver
+    proxyRedirect: false
+    proxyHeaders:
+      Host: "$host"
+      X-Real-IP:       "$remote_addr"
+      X-Forwarded-For: "$proxy_add_x_forwarded_for"
+  serverName: webserver.chulinx.com
+```
+
 ## Create VirtualHost For Http Websocket
 
 ```yaml

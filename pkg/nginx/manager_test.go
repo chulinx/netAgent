@@ -21,13 +21,11 @@ var (
           access_log    /var/log/nginx/access.log;
       }`
 	vs = virtualserverv1alpha1.VirtualServer{
-		Spec: virtualserverv1alpha1.VirtualServerSpec(struct {
-			ListenPort int32
-			ServerName string
-			Proxys     []virtualserverv1alpha1.Location
-		}{
-			ListenPort: 8282,
-			ServerName: "web.chulinx.com",
+		Spec: virtualserverv1alpha1.VirtualServerSpec{
+			ListenPort:   8282,
+			ServerName:   "web.chulinx.com",
+			Tls:          true,
+			TlsMountPath: "/opt/",
 			Proxys: []virtualserverv1alpha1.Location{
 				{
 					Scheme: "https",
@@ -43,7 +41,7 @@ var (
 					},
 				},
 			},
-		}),
+		},
 	}
 	s = virtualserverv1alpha1.StreamServer{Spec: virtualserverv1alpha1.StreamServerSpec{
 		ListenPort: 80,

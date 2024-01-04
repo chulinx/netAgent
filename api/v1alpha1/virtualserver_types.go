@@ -25,9 +25,12 @@ import (
 
 // VirtualServerSpec defines the desired state of VirtualServer
 type VirtualServerSpec struct {
-	ListenPort int32      `json:"listenPort,omitempty"`
-	ServerName string     `json:"serverName,omitempty"`
-	Proxys     []Location `json:"proxys,omitempty"`
+	ListenPort int32  `json:"listenPort,omitempty"`
+	ServerName string `json:"serverName,omitempty"`
+	// +kubebuilder:default=false
+	Tls          bool       `json:"tls,omitempty"`
+	TlsMountPath string     `json:"tlsMountPath,omitempty"`
+	Proxys       []Location `json:"proxys,omitempty"`
 }
 
 // VirtualServerStatus defines the observed state of VirtualServer

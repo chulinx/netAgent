@@ -3,8 +3,12 @@ package nginx
 var (
 	virtualServerTmpl = `server
       {
-          listen       {{.ListenPort}};
+          {{ if .Tls }}listen       {{.ListenPort}} ssl;
           server_name {{.ServerName}};
+          ssl_certificate     {{ .TlsMountPath }}/tls.crt;
+          ssl_certificate_key {{ .TlsMountPath }}/tls.key;
+		  {{ else }}listen       {{.ListenPort}};
+		  server_name {{.ServerName}};{{ end }}
           {{ range $Proxy := .Proxys }}location / {
              {{ if $Proxy.NameSpace }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}.{{$Proxy.NameSpace}}:{{$Proxy.Port}};{{ else }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}:{{$Proxy.Port}};{{ end }}
              {{ if not $Proxy.ProxyRedirect }}proxy_redirect     off;{{ end }}
