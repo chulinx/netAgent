@@ -3,14 +3,14 @@ package nginx
 var (
 	virtualServerTmpl = `server
       {
-          {{ if .Tls }}listen       {{.ListenPort}} ssl;
+          {{ if .TlsSecret }}listen       {{.ListenPort}} ssl;
           server_name {{.ServerName}};
-          ssl_certificate     {{ .TlsMountPath }}/tls.crt;
-          ssl_certificate_key {{ .TlsMountPath }}/tls.key;
+          ssl_certificate     /opt/{{ .NameSpace}}-{{ .SecretName }}.crt;
+          ssl_certificate_key /opt/{{ .NameSpace}}-{{ .SecretName }}.key;
 		  {{ else }}listen       {{.ListenPort}};
 		  server_name {{.ServerName}};{{ end }}
           {{ range $Proxy := .Proxys }}location / {
-             {{ if $Proxy.NameSpace }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}.{{$Proxy.NameSpace}}:{{$Proxy.Port}};{{ else }}proxy_pass {{$Proxy.Scheme}}://{{$Proxy.Service}}:{{$Proxy.Port}};{{ end }}
+             {{ if $Proxy.ProxyPass }}proxy_pass   {{ $Proxy.ProxyPass }};{{ end }}
              {{ if not $Proxy.ProxyRedirect }}proxy_redirect     off;{{ end }}
              {{ if $Proxy.ProxyHttpVersion }}proxy_http_version {{ $Proxy.ProxyHttpVersion }};{{ end }}
              {{ range $key,$value := $Proxy.ProxyHeaders }}proxy_set_header   {{ $key }} {{ $value }};

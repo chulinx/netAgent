@@ -7,31 +7,32 @@ import (
 )
 
 var (
-	result = `server
-      {
-          listen       8282;
-          server_name web.chulinx.com;
-          location / {
-                proxy_pass https://webserver:2003;
-                proxy_redirect     off;
-                proxy_set_header   Host             $host;
-                proxy_set_header   X-Real-IP        $remote_addr;
-                proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
-          }
-          access_log    /var/log/nginx/access.log;
-      }`
-	vs = virtualserverv1alpha1.VirtualServer{
+	vs1 = virtualserverv1alpha1.VirtualServer{
 		Spec: virtualserverv1alpha1.VirtualServerSpec{
-			ListenPort:   8282,
-			ServerName:   "web.chulinx.com",
-			Tls:          true,
-			TlsMountPath: "/opt/",
+			ListenPort: 8282,
+			ServerName: "web.chulinx.com",
+			TlsSecret:  "default/tls-secret",
 			Proxys: []virtualserverv1alpha1.Location{
 				{
-					Scheme: "https",
-					//NameSpace: "default",
-					Service:          "webserver",
-					Port:             2003,
+					ProxyPass:        "http://webserver:2003",
+					ProxyRedirect:    false,
+					ProxyHttpVersion: "1.1",
+					ProxyHeaders: map[string]string{
+						"Host":            "$host",
+						"X-Real-IP":       "$remote_addr",
+						"X-Forwarded-For": "$proxy_add_x_forwarded_for",
+					},
+				},
+			},
+		},
+	}
+	vs2 = virtualserverv1alpha1.VirtualServer{
+		Spec: virtualserverv1alpha1.VirtualServerSpec{
+			ListenPort: 8283,
+			ServerName: "web.chulinx.com",
+			Proxys: []virtualserverv1alpha1.Location{
+				{
+					ProxyPass:        "http://webserver:2003",
 					ProxyRedirect:    false,
 					ProxyHttpVersion: "1.1",
 					ProxyHeaders: map[string]string{
@@ -55,17 +56,18 @@ var (
 )
 
 func Test_generateConfig(t *testing.T) {
-	newManger := NewVirtualServerManager(vs)
+	newManger := NewVirtualServerManager(vs1)
 	c, err := newManger.generateConfig()
 	if err != nil {
 		t.Errorf("Error,%s", err.Error())
 	}
-	if c == result {
-		t.Log("Success")
-	} else {
-		fmt.Println(c)
-		fmt.Println(result)
+	fmt.Println(c)
+	newManger = NewVirtualServerManager(vs2)
+	c, err = newManger.generateConfig()
+	if err != nil {
+		t.Errorf("Error,%s", err.Error())
 	}
+	fmt.Println(c)
 	//streamServer := NewStreamServerManager(s)
 	//fmt.Println(streamServer.generateConfig())
 }

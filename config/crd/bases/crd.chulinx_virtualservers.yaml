@@ -56,36 +56,26 @@ spec:
                   properties:
                     name:
                       type: string
-                    nameSpace:
-                      description: NameSpace empty is current namespace
-                      type: string
                     path:
                       type: string
-                    port:
-                      format: int32
-                      type: integer
                     proxyHeaders:
                       additionalProperties:
                         type: string
                       type: object
                     proxyHttpVersion:
                       type: string
+                    proxyPass:
+                      description: ProxyPass set proxy_pass         http://nginx:8080;
+                      type: string
                     proxyRedirect:
                       default: true
                       description: ProxyRedirect set proxy_redirect     off;
                       type: boolean
-                    scheme:
-                      type: string
-                    service:
-                      type: string
                   type: object
                 type: array
               serverName:
                 type: string
-              tls:
-                default: false
-                type: boolean
-              tlsMountPath:
+              tlsSecret:
                 type: string
             type: object
           status:

@@ -25,12 +25,10 @@ import (
 
 // VirtualServerSpec defines the desired state of VirtualServer
 type VirtualServerSpec struct {
-	ListenPort int32  `json:"listenPort,omitempty"`
-	ServerName string `json:"serverName,omitempty"`
-	// +kubebuilder:default=false
-	Tls          bool       `json:"tls,omitempty"`
-	TlsMountPath string     `json:"tlsMountPath,omitempty"`
-	Proxys       []Location `json:"proxys,omitempty"`
+	ListenPort int32      `json:"listenPort,omitempty"`
+	ServerName string     `json:"serverName,omitempty"`
+	TlsSecret  string     `json:"tlsSecret,omitempty"`
+	Proxys     []Location `json:"proxys,omitempty"`
 }
 
 // VirtualServerStatus defines the observed state of VirtualServer
@@ -67,13 +65,10 @@ type VirtualServerList struct {
 
 // Location is Nginx Location
 type Location struct {
-	Name   string `json:"name,omitempty"`
-	Path   string `json:"path,omitempty"`
-	Scheme string `json:"scheme,omitempty"`
-	// NameSpace empty is current namespace
-	NameSpace string `json:"nameSpace,omitempty"`
-	Service   string `json:"service,omitempty"`
-	Port      int32  `json:"port,omitempty"`
+	Name string `json:"name,omitempty"`
+	Path string `json:"path,omitempty"`
+	// ProxyPass set proxy_pass         http://nginx:8080;
+	ProxyPass string `json:"proxyPass,omitempty"`
 	// ProxyRedirect set proxy_redirect     off;
 	// +kubebuilder:default=true
 	ProxyRedirect    bool              `json:"proxyRedirect,omitempty"`

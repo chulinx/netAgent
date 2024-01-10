@@ -5,7 +5,6 @@ import (
 	"fmt"
 	virtualserverv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
 	"github.com/chulinx/zlxGo/log"
-	"github.com/chulinx/zlxGo/net"
 	"github.com/chulinx/zlxGo/stringfile"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/types"
@@ -18,6 +17,12 @@ type VirtualServerManager struct {
 	VirtualServer *virtualserverv1alpha1.VirtualServer
 }
 
+type VirtualServerManagerTemplate struct {
+	virtualserverv1alpha1.VirtualServerSpec
+	NameSpace  string
+	SecretName string
+}
+
 func NewVirtualServerManager(v virtualserverv1alpha1.VirtualServer) *VirtualServerManager {
 	return &VirtualServerManager{
 		VirtualServer: &v,
@@ -26,13 +31,6 @@ func NewVirtualServerManager(v virtualserverv1alpha1.VirtualServer) *VirtualServ
 
 // CreateOrUpdate write Or Update http server conf to confdPath
 func (m *VirtualServerManager) CreateOrUpdate() error {
-	for _, location := range m.VirtualServer.Spec.Proxys {
-		domain := fmt.Sprintf("%s.%s", location.Service, location.NameSpace)
-		_, err := net.LookAddrIPFromDomain(domain)
-		if err != nil {
-			return err
-		}
-	}
 	content, err := m.generateConfig()
 	if err != nil {
 		return err
@@ -63,5 +61,22 @@ func (m *VirtualServerManager) RemoveVirtualServerManager(namespacedName types.N
 
 func (m *VirtualServerManager) generateConfig() (string, error) {
 	log.Info("start generate nginx config")
-	return renderConf(virtualServerTmpl, m.VirtualServer.Spec)
+	var (
+		nameSpace, secretName string
+	)
+
+	secretSplit := strings.Split(m.VirtualServer.Spec.TlsSecret, "/")
+	if len(secretSplit) == 2 {
+		nameSpace = secretSplit[0]
+		secretName = secretSplit[1]
+	} else {
+		nameSpace = m.VirtualServer.Namespace
+		secretName = m.VirtualServer.Spec.TlsSecret
+	}
+	vsTemple := VirtualServerManagerTemplate{
+		VirtualServerSpec: m.VirtualServer.Spec,
+		NameSpace:         nameSpace,
+		SecretName:        secretName,
+	}
+	return renderConf(virtualServerTmpl, vsTemple)
 }

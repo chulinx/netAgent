@@ -29,11 +29,8 @@ spec:
   listenPort: 8585
   proxys:
   - name: web
-    nameSpace: default
     path: /
-    port: 80
-    scheme: http
-    service: webserver
+    proxyPass: http://webserver.default:8080
     proxyRedirect: false
     proxyHeaders:
       Host: "$host"
@@ -50,15 +47,11 @@ metadata:
   name: webserver
 spec:
   listenPort: 8585
-  tls: true
-  tlsMountPath: "/opt"
+  tlsSecret: "default/webserver"
   proxys:
   - name: web
-    nameSpace: default
     path: /
-    port: 80
-    scheme: http
-    service: webserver
+    proxyPass: http://webserver.default:8080
     proxyRedirect: false
     proxyHeaders:
       Host: "$host"
@@ -78,11 +71,8 @@ spec:
   listenPort: 8585
   proxys:
   - name: web
-    nameSpace: default
     path: /
-    port: 80
-    scheme: http
-    service: webserver
+    proxyPass: http://webserver.default:8080
     proxyHttpVersion: "1.1"
     proxyHeaders:
       Host: "$host"

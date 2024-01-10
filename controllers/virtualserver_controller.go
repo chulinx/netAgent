@@ -18,15 +18,23 @@ package controllers
 
 import (
 	"context"
+	"encoding/base64"
+	goerror "errors"
+	"fmt"
 	crdv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
 	virtualserverv1alpha1 "github.com/chulinx/netAgent/api/v1alpha1"
 	nginx_manager "github.com/chulinx/netAgent/pkg/nginx"
 	"github.com/chulinx/zlxGo/log"
+	"github.com/chulinx/zlxGo/stringfile"
 	"go.uber.org/zap"
 	"k8s.io/apimachinery/pkg/api/errors"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strings"
 )
 
 // VirtualServerReconciler reconciles a VirtualServer object
@@ -38,6 +46,7 @@ type VirtualServerReconciler struct {
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=crd.chulinx,resources=virtualservers/finalizers,verbs=update
+//+kubebuilder:rbac:groups=core,resources=services;secrets,verbs=get;list;watch;create;update;patch;delete
 
 // Reconcile is part of the main kubernetes reconciliation loop which aims to
 // move the current state of the cluster closer to the desired state.
@@ -53,14 +62,54 @@ func (r *VirtualServerReconciler) Reconcile(ctx context.Context, req ctrl.Reques
 	virtualServer := virtualserverv1alpha1.VirtualServer{}
 	// manager Nginx Virtual Host Config lifecycle
 	var err error
-	if err != r.reconcileNginxVirtualServerConfig(ctx, virtualServer, req) {
+	if !goerror.Is(err, r.reconcileNginxVirtualServerConfig(ctx, virtualServer, req)) {
 		return ctrl.Result{}, err
 	}
 	return ctrl.Result{}, nil
 }
 
 func (r *VirtualServerReconciler) reconcileNginxVirtualServerConfig(ctx context.Context, vs virtualserverv1alpha1.VirtualServer, req ctrl.Request) error {
-	err := r.Get(ctx, req.NamespacedName, &vs)
+	// get service and secret
+	config, err := rest.InClusterConfig()
+	if err != nil {
+		log.Error("get cluster config failed", zap.Any("err", err))
+	}
+	clientSet, err := kubernetes.NewForConfig(config)
+	if err != nil {
+		log.Error("get clientSet failed", zap.Any("err", err))
+	}
+	//clientSet := ok8s.ClientSet("/Users/zhangxiang/.kube/dev-config")
+	var (
+		nameSpace, secretName string
+	)
+
+	secretSplit := strings.Split(vs.Spec.TlsSecret, "/")
+	if len(secretSplit) == 2 {
+		nameSpace = secretSplit[0]
+		secretName = secretSplit[1]
+	} else {
+		nameSpace = req.Namespace
+		secretName = vs.Spec.TlsSecret
+	}
+
+	secret, err := clientSet.CoreV1().Secrets(nameSpace).Get(ctx, secretName, metav1.GetOptions{})
+	if err != nil {
+		log.Error("get service list failed", zap.Any("err", err))
+		return err
+	}
+	tlsCrt, err1 := base64.StdEncoding.DecodeString(string(secret.Data["tls.crt"]))
+	tlsKey, err2 := base64.StdEncoding.DecodeString(string(secret.Data["tls.key"]))
+	if err1 != nil || err2 != nil {
+		log.Error("decode tls.crt or tls.key failed", zap.Any("err1", err1), zap.Any("err2", err2))
+		return goerror.New(fmt.Sprintf("decode tls.crt or tls.key failed %s,%s", err1, err2))
+	}
+	err3 := stringfile.RewriteFile(tlsCrt, fmt.Sprintf("/opt/%s-%s.crt", nameSpace, secretName))
+	err4 := stringfile.RewriteFile(tlsKey, fmt.Sprintf("/opt/%s-%s.key", nameSpace, secretName))
+	if err3 != nil || err4 != nil {
+		log.Error("rewrite tls.crt or tls.key failed", zap.Any("err3", err3), zap.Any("err4", err4))
+		return goerror.New(fmt.Sprintf("rewrite tls.crt or tls.key failed %s,%s", err3, err4))
+	}
+	err = r.Get(ctx, req.NamespacedName, &vs)
 	nginxManager := nginx_manager.NewVirtualServerManager(vs)
 	if err != nil {
 		// delete virtual host config file
